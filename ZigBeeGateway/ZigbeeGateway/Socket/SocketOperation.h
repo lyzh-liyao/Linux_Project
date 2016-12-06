@@ -9,7 +9,7 @@
 #include<netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#define DEFAULT_PORT 7433
+#define DEFAULT_PORT 8080
 
 int Soket_Init(void);
 int Socket_Distroy(int socket_fd);

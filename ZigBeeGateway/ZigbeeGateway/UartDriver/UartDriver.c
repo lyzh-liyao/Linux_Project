@@ -113,7 +113,7 @@ int set_Parity(int fd,int databits,int stopbits,int parity)
 }
 
 int Uart_Init(void){
-    int    fd = open(UART_DEVICE, O_RDWR);//|O_NDELAY
+    int    fd = open(UART_DEVICE, O_RDWR|O_NOCTTY);//|O_NDELAY   |O_NOCTTY
     if (fd < 0) {
         perror(UART_DEVICE);
         return -1;

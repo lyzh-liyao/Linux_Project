@@ -1,7 +1,6 @@
 #include <SocketOperation.h>
 
-#define IMAGE_SCALE 20
-int soket_init(){
+int Soket_Init(void){
     int    socket_fd;
     struct sockaddr_in     servaddr;
     //初始化Socket
@@ -27,12 +26,12 @@ int soket_init(){
     return socket_fd;
 }
 
-int socket_distroy(int socket_fd){
+int Socket_Distroy(int socket_fd){
     close(socket_fd);
     return 0;
 }
 
-int socket_accept(int socket_fd, char* buf, int len){
+int Socket_Accept(int socket_fd, char* buf, int len){
     while(1){
         int     connect_fd;
         //阻塞直到有客户端连接
@@ -51,9 +50,9 @@ int socket_accept(int socket_fd, char* buf, int len){
                 ip = inet_ntoa(rsa.sin_addr);
                 port = ntohs(rsa.sin_port);
             }
-            //printf("收到客户端请求：%s:%d\r\n", ip,port);
+            printf("收到客户端请求：%s:%d\r\n", ip,port);
         }
-        if(send(connect_fd, buf, len/IMAGE_SCALE,0) == -1)
+        if(send(connect_fd, buf, 1,0) == -1)
                         perror("send error");
         close(connect_fd);
         usleep(33333);
@@ -61,4 +60,5 @@ int socket_accept(int socket_fd, char* buf, int len){
     }
     return 0;
 }
+
 

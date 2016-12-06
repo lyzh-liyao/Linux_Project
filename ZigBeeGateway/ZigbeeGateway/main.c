@@ -11,8 +11,8 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <signal.h>
-#include "UartDriver/UartDriver.h"
-#include "Socket/SocketOperation.h"
+#include "UartDriver.h"
+#include "SocketOperation.h"
 #define UartBuffSize 1024
 #define SocketBuffSize 1024
 typedef struct _Socekt_List_T Socekt_List_T;
@@ -41,13 +41,17 @@ void* UartToSocket(void* arg){
         while(tmp_Socket_List  !=  &Socket_Head){
             if((cnt = send(tmp_Socket_List->Socket_fd, UartBuff, cnt, 0))  < 0){
                 printf("UartToSocket Error retcode:%d,errno:%d,%s\r\n", cnt, errno,strerror(errno));
-                tmp_Socket_List->Prev->Next = tmp_Socket_List->Next;
-                tmp_Socket_List->Next->Prev = tmp_Socket_List->Prev;
-                close(tmp_Socket_List->Socket_fd);
-                free(tmp_Socket_List);
+			
+		   Socekt_List_T* p = tmp_Socket_List;
+		   tmp_Socket_List = tmp_Socket_List->Prev;
+                p->Prev->Next = p->Next;
+                p->Next->Prev = p->Prev;
+                close(p->Socket_fd); 
+                free(p); 
             }else{
                 printf("UartToSocket字节数%d\r\n", cnt);
             }
+	    printf("uartfd:%d,socketfd:%d\r\n", UartFD, tmp_Socket_List->Socket_fd);
             tmp_Socket_List = tmp_Socket_List->Next;
         }
         pthread_mutex_unlock(&Socket_Head_Mutex);
@@ -80,12 +84,22 @@ void* SocketToUart(void* arg){
     }
 }
 
+void signal_init(int no){
+	printf("signal_init\r\n"); 
+	close(UartFD);
+	close(SocketFD);
+	exit(0);
+}
+
 int main(int argc, char *argv[])
 {
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGINT,signal_init);
     UartFD = Uart_Init();
     if(UartFD < 0) return 0;
-    signal(SIGPIPE, SIG_IGN);
+    printf("UartFD:%d\r\n", UartFD);
     SocketFD = Soket_Init();
+    printf("SocketFD:%d\r\n", SocketFD);
     int ret = -1;
     Socket_Head.Next = &Socket_Head;
     Socket_Head.Prev = &Socket_Head;
@@ -129,7 +143,6 @@ int main(int argc, char *argv[])
             tmp_Socket_List->Next = Socket_Head.Next;
             tmp_Socket_List->Prev = &Socket_Head;
             Socket_Head.Next = tmp_Socket_List;
-            Socket_Head.Next->Prev = tmp_Socket_List;
         }
         Socket_Head.count++;
         pthread_mutex_unlock(&Socket_Head_Mutex);

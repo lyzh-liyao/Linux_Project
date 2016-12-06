@@ -9,10 +9,9 @@
 #include<netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#define DEFAULT_PORT 7433
-#define MAXLINE 4096
+#define DEFAULT_PORT 8080
 
-int soket_init();
-int socket_distroy(int socket_fd);
-int socket_accept(int socket_fd, char* buf, int len);
+int Soket_Init(void);
+int Socket_Distroy(int socket_fd);
+int Socket_Accept(int socket_fd, char* buf, int len);
 #endif
