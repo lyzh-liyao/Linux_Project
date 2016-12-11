@@ -1,4 +1,4 @@
-#include "UartDriver.h"
+#include "inc/UartDriver.h"
 #define BAUD_RATE 115200
 #define UART_DEVICE     "/dev/ttyUSB0"
 
@@ -113,7 +113,7 @@ int set_Parity(int fd,int databits,int stopbits,int parity)
 }
 
 int Uart_Init(void){
-    int    fd = open(UART_DEVICE, O_RDWR|O_NOCTTY);//|O_NDELAY   |O_NOCTTY
+    int    fd = open(UART_DEVICE, O_RDWR|O_NOCTTY|O_NDELAY  );//|O_NDELAY   
     if (fd < 0) {
         perror(UART_DEVICE);
         return -1;

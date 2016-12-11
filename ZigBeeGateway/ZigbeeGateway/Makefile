@@ -1,14 +1,28 @@
-CFLAGS+=-pthread
-LDFLAGS+=-pthread
-CC=gcc
-RM=rm
-SRCS=$(wildcard *.c)
-OBJS=$(patsubst %.c, %.o, $(SRCS))
-TARGET=ZigbeeGateway
+DIR_INC = ./
+DIR_SRC = ./
+DIR_OBJ = ./obj
+DIR_BIN = ./
 
-$(TARGET):$(OBJS)
-	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
-$(OBJS):$(SRCS)
-	$(CC) -c $^ -I ./
+SRC += $(wildcard ${DIR_SRC}/*.c) 
+SRC += $(wildcard Socket/*.c)
+SRC += $(wildcard UartDriver/*.c) 
+OBJ = $(patsubst %.c,${DIR_OBJ}/%.o,$(notdir ${SRC}))
+TARGET = ZigbeeGateway
+
+BIN_TARGET = ${DIR_BIN}/${TARGET}
+
+CC = gcc
+LDFLAGS= -pthread
+CFLAGS = -g -Wall -I${DIR_INC}
+${BIN_TARGET}:${OBJ}
+	$(CC) $(OBJ)  -o $@ ${LDFLAGS}
+
+${DIR_OBJ}/%.o:${DIR_SRC}/%.c
+	$(CC) -c  $^ -o $@  $(CFLAGS)
+${DIR_OBJ}/%.o:Socket/%.c
+	$(CC) -c  $^ -o $@  $(CFLAGS)
+${DIR_OBJ}/%.o:UartDriver/%.c
+	$(CC) -c  $^ -o $@  $(CFLAGS)
+.PHONY:clean
 clean:
-	@$(RM) -f $(TARGET) $(OBJS)
+	rm -f $(DIR_OBJ)/*
