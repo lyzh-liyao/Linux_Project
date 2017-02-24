@@ -11,8 +11,8 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <signal.h>
-#include "UartDriver.h"
-#include "SocketOperation.h"
+#include "inc/UartDriver.h"
+#include "inc/SocketOperation.h"
 #define UartBuffSize 1024
 #define SocketBuffSize 1024
 typedef struct _Socekt_List_T Socekt_List_T;
@@ -35,13 +35,17 @@ void* UartToSocket(void* arg){
     Socekt_List_T* tmp_Socket_List = NULL;
     while(1){
         int cnt = read(UartFD, UartBuff, UartBuffSize);
+	  if(cnt <= 0){
+	     //printf("read return:%d\r\n", cnt);
+	      usleep(40*1000);
+	      continue;
+	   }
         printf("收到串口数据：%d\r\n", cnt);
         pthread_mutex_lock(&Socket_Head_Mutex);
         tmp_Socket_List = Socket_Head.Next;
         while(tmp_Socket_List  !=  &Socket_Head){
             if((cnt = send(tmp_Socket_List->Socket_fd, UartBuff, cnt, 0))  < 0){
                 printf("UartToSocket Error retcode:%d,errno:%d,%s\r\n", cnt, errno,strerror(errno));
-			
 		   Socekt_List_T* p = tmp_Socket_List;
 		   tmp_Socket_List = tmp_Socket_List->Prev;
                 p->Prev->Next = p->Next;
